@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Board</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white font-sans">
+
+    <div class="task-board flex w-full h-screen">
+        <div class="sidebar bg-white shadow-md w-1/5 h-full p-6">
+            <h1 class="text-lg font-bold mb-6">Task Boards</h1>
+            <ul class="space-y-4">
+                <li class="bg-gray-200 p-4 rounded-lg">Freelance Project</li>
+                <li class="bg-gray-100 p-4 rounded-lg">SBI Outsource</li>
+                <li class="bg-gray-100 p-4 rounded-lg">HPCL Project 1</li>
+            </ul>
+            <button class="add-project-btn mt-6 px-4 py-2 bg-blue-500 text-white rounded-lg w-full">
+                Add New Project
+            </button>
+        </div>
+        <div class="main-content flex-grow p-6 bg-gray-50">
+            <h2 class="text-xl font-semibold mb-4">My Projects</h2>
+            <div class="task-columns flex gap-7">
+                <div class="task-column w-1/4 flex flex-col">
+                    <div class="status-badge bg-blue-100 text-blue-600 px-4 py-2 rounded-full text-center">
+                        To Do
+                    </div>
+                    <button id="addToDoTaskBtn" class="add-task-btn mt-4 w-full px-4 py-2 bg-blue-100 text-blue-600 rounded-lg">
+                        Add New Task
+                    </button>
+                    <div class="task-line" id="toDoTasks"></div>
+                </div>
+                <div class="column-divider"></div>
+                <div class="task-column w-1/4 flex flex-col">
+                    <div class="status-badge bg-pink-100 text-pink-600 px-4 py-2 rounded-full text-center">
+                        In Progress
+                    </div>
+                    <button id="addInProgressTaskBtn" class="add-task-btn mt-4 w-full px-4 py-2 bg-pink-100 text-pink-600 rounded-lg">
+                        Add New Task
+                    </button>
+                    <div class="task-line" id="inProgressTasks"></div>
+                </div>
+                <div class="column-divider"></div>
+                <div class="task-column w-1/4 flex flex-col">
+                    <div class="status-badge bg-green-100 text-green-600 px-4 py-2 rounded-full text-center">
+                        Completed
+                    </div>
+                    <button id="addCompletedTaskBtn" class="add-task-btn mt-4 w-full px-4 py-2 bg-green-100 text-green-600 rounded-lg">
+                        Add New Task
+                    </button>
+                    <div class="task-line" id="completedTasks"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="addTaskModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center hidden">
+        <div class="bg-white w-[670px] rounded-[10px]">
+            <div class="w-full px-6 py-2.5 bg-white border-b border-[#d8dffd] flex justify-between items-center">
+                <div class="text-[#263fa0] text-base font-normal">Edit Task</div>
+                <button id="closeModal" class="w-5 h-5 p-1 flex justify-center items-center">
+                    <span class="text-black">&times;</span>
+                </button>
+            </div>
+            <div class="px-6 py-4 bg-white flex flex-col gap-6">
+                <div class="flex flex-col gap-1">
+                    <label class="text-[#232323] text-xs">Name of the Task</label>
+                    <input type="text" id="taskName" placeholder="Create a To-Do App" class="h-11 px-3 py-1 bg-white rounded-lg border border-[#b9c0cb]">
+                </div>
+                <div class="flex gap-6">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[#232323] text-xs">Start Date</label>
+                        <input type="date" id="startDate" class="h-11 px-3 py-1 bg-white rounded-lg border border-[#b9c0cb]">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[#232323] text-xs">Deadline</label>
+                        <input type="date" id="deadline" class="h-11 px-3 py-1 bg-white rounded-lg border border-[#b9c0cb]">
+                    </div>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-[#232323] text-xs">Status</label>
+                    <select id="taskStatus" class="h-11 px-3 py-1 bg-white rounded-lg border border-[#b9c0cb]">
+                        <option value="toDoTasks">To Do</option>
+                        <option value="inProgressTasks">In Progress</option>
+                        <option value="completedTasks">Completed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="px-6 py-2.5 bg-white border-t border-[#d8dffd] flex justify-end items-center gap-2.5">
+                <button id="cancelBtn" class="px-2 py-2.5 bg-[#ebeefc] rounded-lg">Cancel</button>
+                <button id="saveTaskBtn" class="px-2 py-2.5 bg-[#3659e2] rounded-lg text-white">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const addTaskModal = document.getElementById('addTaskModal');
+        const closeModal = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const saveTaskBtn = document.getElementById('saveTaskBtn');
+
+        document.querySelectorAll('.add-task-btn').forEach(button => {
+            button.addEventListener('click', () => addTaskModal.classList.remove('hidden'));
+        });
+
+        [closeModal, cancelBtn].forEach(button => {
+            button.addEventListener('click', () => addTaskModal.classList.add('hidden'));
+        });
+
+        saveTaskBtn.addEventListener('click', () => {
+            const taskName = document.getElementById('taskName').value;
+            const startDate = document.getElementById('startDate').value;
+            const deadline = document.getElementById('deadline').value;
+            const taskStatus = document.getElementById('taskStatus').value;
+
+            if (taskName && startDate && deadline) {
+                const taskHTML = `
+
+                    <div class="w-[270px] h-[114px] p-4 bg-white rounded-lg shadow-[0px_0px_8px_0px_rgba(54,89,226,0.16)] flex-col justify-start items-start gap-2.5 inline-flex overflow-hidden">
+                        <div class="text-black text-base font-semibold font-['Nunito Sans'] leading-normal">${taskName}</div>
+                        <div class="justify-start items-start gap-6 inline-flex">
+                            <div class="flex-col justify-start items-start gap-1 inline-flex">
+                                <div class="text-[#777777] text-xs font-normal font-['Nunito Sans'] leading-tight">Start date</div>
+                                <div class="px-2 py-1 bg-[#ebeefc] rounded-lg flex items-center">
+                                    <div class="text-[#3659e2] text-xs font-normal font-['Nunito Sans'] leading-tight">${startDate}</div>
+                                </div>
+                            </div>
+                            <div class="flex-col justify-start items-start gap-1 inline-flex">
+                                <div class="text-[#777777] text-xs font-normal font-['Nunito Sans'] leading-tight">Deadline</div>
+                                <div class="px-2 py-1 bg-[#ebeefc] rounded-lg flex items-center">
+                                    <div class="text-[#3659e2] text-xs font-normal font-['Nunito Sans'] leading-tight">${deadline}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById(taskStatus).insertAdjacentHTML('beforeend', taskHTML);
+                addTaskModal.classList.add('hidden');
+            } else {
+                alert('Please fill all fields!');
+            }
+        });
+    </script>
+</body>
+</html>
